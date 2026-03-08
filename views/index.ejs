@@ -1,0 +1,107 @@
+
+
+<%- include('partials/header-simple', { 
+        currentPage: 'index', 
+        showBackButton: false 
+    }) %>
+
+<div class="container mt-4">
+    <!-- ALERTA DE ACESSO NEGADO -->
+    <% if (typeof mensagemErro !== 'undefined' && mensagemErro) { %>
+        <div class="notification is-warning is-light animate__animated animate__shakeX">
+            <button class="delete" onclick="this.parentElement.style.display='none'"></button>
+            <div class="columns is-vcentered">
+                <div class="column is-narrow">
+                    <i class="fas fa-exclamation-triangle fa-2x"></i>
+                </div>
+                <div class="column">
+                    <strong>Atenção:</strong> <%= mensagemErro %>
+                </div>
+            </div>
+        </div>
+    <% } %>
+    
+
+<section class="section">
+    <div class="container">
+
+    <div class="box has-text-centered mt-6">
+        <p class="subtitle is-6">Sessão ativa como: <strong><%= user.nome %></strong></p>
+        <a href="/logout" class="button is-danger">
+            <i class="fas fa-power-off"></i>&nbsp;&nbsp;Encerrar Sessão
+        </a>
+    </div>
+
+        <h1 class="title">Dashboard</h1>
+        <p class="subtitle">Visão geral do sistema</p>
+
+        <!-- AÇÕES RÁPIDAS -->
+<div class="quick-actions">
+            <div class="quick-action-btn card " onclick="verUsuarios()">
+                <div class="card-content">
+                    <p class="title is-4">
+                        <i class="fas fa-folder-plus"></i>
+                    </p>
+                    <p class="subtitle">Visualizar Usuarios</p>
+                </div>
+            </div>
+
+            <div class="quick-action-btn card " onclick="verAdvogados()">
+                <div class="card-content">
+                    <p class="title is-4">
+                        <i class="fas fa-user-tie"></i>
+                    </p>
+                    <p class="subtitle">Visualizar Advogados</p>
+                </div>
+            </div>
+
+          <div class="quick-action-btn card " onclick="verProcessos()">
+                <div class="card-content">
+                     
+                     <p class="title is-4">
+                        <i class="fas fa-chart-bar"></i>
+                    </p>
+                     <p class="subtitle">Visualizar Processos</p>
+                     
+                </div>
+            </div>
+        </div>
+
+       
+        
+    </div>
+</section>
+
+ <%- include('partials/footer') %>
+
+<script>
+
+      function cadastrarUsuario() {
+        window.location.href = '/cadastrar-usuario';
+    }
+
+
+    function verUsuarios() {
+        window.location.href = '/usuarios';
+    }
+
+    function verAdvogados() {
+        window.location.href = '/advogados';
+    }
+
+    function verProcessos() {
+        window.location.href = '/processos';
+    }
+
+    function sair() {
+        if (confirm('Tem certeza que deseja sair do sistema?')) {
+            window.location.href = '/logout';
+        }
+    }
+  
+
+</script>
+
+
+</body>
+</html>

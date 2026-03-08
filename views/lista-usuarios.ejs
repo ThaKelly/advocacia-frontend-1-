@@ -1,0 +1,99 @@
+<%- include('partials/header-simple', { 
+    currentPage: 'listar-usuarios', 
+    showBackButton: true 
+}) %>
+
+<section class="section">
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <h1 class="title">Lista de Usuários</h1>
+                <p class="subtitle">Gestão de usuários do sistema</p>
+            </div>
+            
+            <div class="buttons">
+                <!-- PROTEÇÃO: Só admin cria usuários -->
+                <% if (user.role === 'ROLE_ADMIN') { %>
+                    <button class="button is-info" onclick="cadastrarUsuario()">
+                        <i class="fas fa-user-plus"></i>&nbsp;Novo Usuário
+                    </button>
+                <% } %>
+                <a href="/" class="button is-light"><i class="fas fa-home"></i>&nbsp;Início</a>
+            </div>
+        </div>
+
+        <div class="box mt-4">
+            <div class="field mb-5">
+                <label class="label">Buscar Usuário</label>
+                <div class="control has-icons-left">
+                    <input class="input" type="text" id="inputBuscaUsuario" placeholder="Buscar por nome ou tipo...">
+                    <span class="icon is-left"><i class="fas fa-search"></i></span>
+                </div>
+            </div>
+            
+            <% if (usuarios && usuarios.length > 0) { %>
+                <div class="table-responsive">
+                    <table class="table is-fullwidth is-striped is-hoverable" id="usuariosTable">
+                        <thead>
+                            <tr>
+                                <th>Usuário</th>
+                                <th>Tipo</th>
+                                <!-- PROTEÇÃO: Ações só admin -->
+                                <% if (user.role === 'ROLE_ADMIN') { %>
+                                    <th>Ações</th>
+                                <% } %>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for (let i = 0; i < usuarios.length; i++) { 
+                                const u = usuarios[i];
+                                let roleClass = (u.role === 'ROLE_ADMIN' || u.role === 'ADMIN') ? 'role-admin' : 'role-user';
+                                let roleText = roleClass === 'role-admin' ? 'Administrador' : 'Usuário';
+                            %>
+                            <tr>
+                                <td><p class="has-text-weight-medium"><%= u.nomeUsuario %></p></td>
+                                <td>
+                                    <span class="role-badge <%= roleClass %>"><%= roleText %></span>
+                                    <% if (roleText === 'Administrador') { %> <i class="fas fa-crown ml-2" style="color: #ffd700;"></i> <% } %>
+                                </td>
+                                
+                                <!-- PROTEÇÃO: Ações só admin -->
+                                <% if (user.role === 'ROLE_ADMIN') { %>
+                                <td>
+                                    <div class="actions-cell">
+                                        <a href="/editar-usuario/<%= u.id %>" class="btn-icon btn-edit"><i class="fas fa-edit"></i></a>
+                                        <div class="btn-icon btn-delete" onclick="excluirUsuario('<%= u.id %>')"><i class="fas fa-trash"></i></div>
+                                    </div>
+                                </td>
+                                <% } %>
+                            </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</section>
+
+<%- include('partials/footer') %>
+
+<script>
+    function cadastrarUsuario(){ window.location.href = '/cadastrar-usuario'; }
+    function excluirUsuario(id) {
+        if (!confirm('Excluir usuário?')) return;
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/excluir-usuario/' + id;
+        document.body.appendChild(form);
+        form.submit();
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        const input = document.getElementById('inputBuscaUsuario');
+        const linhas = document.querySelectorAll('#usuariosTable tbody tr');
+        input.addEventListener('keyup', () => {
+            const termo = input.value.toLowerCase();
+            linhas.forEach(l => l.style.display = l.textContent.toLowerCase().includes(termo) ? "" : "none");
+        });
+    });
+</script>

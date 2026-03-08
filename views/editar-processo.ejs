@@ -1,0 +1,211 @@
+
+    <%- include('partials/header-simple', { 
+        currentPage: 'editar-processo', 
+        showBackButton: true 
+    }) %>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="main-container">
+        <a href="/processos" class="back-button">
+            <i class="fas fa-arrow-left"></i> Voltar para Lista de Processos
+        </a>
+
+        <div class="form-card">
+            <h1 class="form-title">
+                <i class="fas fa-edit mr-2"></i>Editar Processo
+            </h1>
+
+            <!-- Informações do Processo -->
+            <div class="processo-info">
+                <div class="form-row">
+                    <div>
+                        <span class="info-label">Código:</span>
+                        <span class="info-value"> <%= processo.code || '—' %></span>
+                    </div>
+                    <div>
+                        <span class="info-label">Data de Abertura:</span>
+                        <span class="info-value"> 
+                            <% if (processo.dataAbertura) { %>
+                                <%= new Date(processo.dataAbertura).toLocaleDateString('pt-BR') %>
+                            <% } else { %>
+                                —
+                            <% } %>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mensagens -->
+            <% if (typeof success !== 'undefined' && success) { %>
+                <div class="success-message" style="display: block;">
+                    <i class="fas fa-check-circle mr-2"></i><%= success %>
+                </div>
+            <% } %>
+
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="error-message" style="display: block;">
+                    <i class="fas fa-exclamation-circle mr-2"></i><%= error %>
+                </div>
+            <% } %>
+
+            <!-- Formulário de Edição -->
+            <form id="formProcesso" action="/atualizar-processo/<%= processo.code %>" method="POST">
+                <!-- Seção 1: Informações Básicas -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="numeroProcesso" class="form-label required">Número do Processo</label>
+                        <input type="text" class="form-control" id="numeroProcesso" name="numeroProcesso" 
+                               value="<%= processo.numeroProcesso || '' %>"
+                               placeholder="Ex: 0001234-56.2026.8.26.0000" 
+                               maxlength="50" required>
+                        <span class="form-help">Máximo 50 caracteres</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="advogadoId" class="form-label required">Advogado Responsável</label>
+                        <select class="form-control" id="advogadoId" name="advogadoId" required>
+                            <option value="">Selecione um advogado</option>
+                            <% if (typeof advogados !== 'undefined' && advogados.length > 0) { %>
+                                <% advogados.forEach(advogado => { %>
+                                    <option value="<%= advogado.id %>" 
+                                            <%= (processo.advogado && processo.advogado.id == advogado.id) ? 'selected' : '' %>>
+                                        <%= advogado.nome %> - OAB: <%= advogado.oab %>
+                                    </option>
+                                <% }); %>
+                            <% } else { %>
+                                <option value="" disabled>Nenhum advogado cadastrado</option>
+                            <% } %>
+                        </select>
+                        <span class="form-help">Selecione o advogado responsável</span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="valorCausa" class="form-label required">Valor da Causa (R$)</label>
+                        <input type="text" class="form-control" id="valorCausa" name="valorCausa" 
+                            value="<%= typeof formData !== 'undefined' ? formData.valorCausa : (typeof processo !== 'undefined' ? processo.valorCausa : '') %>"
+                            placeholder="0,00" required>                               value="<%= processo.valorCausa || '' %>"
+                               step="0.01" min="0.01" placeholder="0,00" required>
+                        <span class="form-help">Valor deve ser positivo (ex: 5000.00)</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status" class="form-label required">Status</label>
+                        <select class="form-control" id="status" name="status" required>
+                            <option value="">Selecione o status</option>
+                            <option value="EM_ANDAMENTO" <%= processo.status === 'EM_ANDAMENTO' ? 'selected' : '' %>>Em Andamento</option>
+                            <option value="ARQUIVADO" <%= processo.status === 'ARQUIVADO' ? 'selected' : '' %>>Arquivado</option>
+                            <option value="CONCLUIDO" <%= processo.status === 'CONCLUIDO' ? 'selected' : '' %>>Concluído</option>
+                            <option value="SUSPENSO" <%= processo.status === 'SUSPENSO' ? 'selected' : '' %>>Suspenso</option>
+                        </select>
+                        <span class="form-help">Situação atual do processo</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="descricao" class="form-label required">Descrição do Processo</label>
+                    <textarea class="form-textarea" id="descricao" name="descricao" 
+                              rows="4" placeholder="Descreva detalhadamente o processo..." 
+                              maxlength="255" required><%= processo.descricao || '' %></textarea>
+                    <span class="form-help">Máximo 255 caracteres</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="objetivo" class="form-label required">Objetivo</label>
+                    <textarea class="form-textarea" id="objetivo" name="objetivo" 
+                              rows="3" placeholder="Qual o objetivo principal deste processo?" 
+                              maxlength="255" required> <%= processo.objetivo || '' %></textarea>
+                    <span class="form-help">Máximo 255 caracteres</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="relatorio" class="form-label required">Relatório</label>
+                    <textarea class="form-textarea" id="relatorio" name="relatorio" 
+                              rows="6" placeholder="Relatório completo e detalhado do processo..." required><%= processo.relatorio || '' %></textarea>
+                    <span class="form-help">Relatório obrigatório do processo</span>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-save mr-2"></i>Atualizar Processo
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <%- include('partials/footer') %>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('formProcesso');
+
+        // Validação do formulário
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const numeroProcesso = document.getElementById('numeroProcesso').value.trim();
+            const advogadoId = document.getElementById('advogadoId').value;
+            const valorCausa = parseFloat(document.getElementById('valorCausa').value);
+            const status = document.getElementById('status').value;
+            const descricao = document.getElementById('descricao').value.trim();
+            const objetivo = document.getElementById('objetivo').value.trim();
+            const relatorio = document.getElementById('relatorio').value.trim();
+            
+            let errors = [];
+            
+            // Validações específicas
+            if (!numeroProcesso) errors.push('Número do processo é obrigatório');
+            if (numeroProcesso.length > 50) errors.push('Número do processo muito longo (máx. 50 caracteres)');
+            
+            if (!advogadoId) errors.push('Selecione um advogado');
+            
+            if (isNaN(valorCausa) || valorCausa <= 0) errors.push('Valor da causa deve ser um número positivo');
+            
+            if (!status) errors.push('Status é obrigatório');
+            
+            if (!descricao) errors.push('Descrição é obrigatória');
+            if (descricao.length > 255) errors.push('Descrição muito longa (máx. 255 caracteres)');
+            
+            if (!objetivo) errors.push('Objetivo é obrigatório');
+            if (objetivo.length > 255) errors.push('Objetivo muito longo (máx. 255 caracteres)');
+            
+            if (!relatorio) errors.push('Relatório é obrigatório');
+            
+            if (errors.length > 0) {
+                alert('Erros:\n' + errors.join('\n'));
+                return;
+            }
+            
+            // Desabilitar botão para evitar múltiplos envios
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Atualizando...';
+            
+            //Transforma virgula em ponto (pro Java não bugar)
+            const inputValor = document.getElementById('valorCausa');
+            inputValor.value = inputValor.value.replace(',', '.');
+
+
+            // Enviar formulário
+            this.submit();
+        });
+
+        // Formatar valor monetário
+        const valorCausaInput = document.getElementById('valorCausa');
+        valorCausaInput.addEventListener('blur', function(e) {
+            let value = parseFloat(e.target.value);
+            if (!isNaN(value) && value >= 0) {
+                e.target.value = value.toFixed(2);
+            } else if (e.target.value.trim() !== "") {
+                e.target.value = "";
+            }
+        });
+
+        // Permitir apenas números e ponto no valor
+        valorCausaInput.addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/[^0-9.]/g, '');
+        });
+    });
+    </script>
+</body>
+</html>

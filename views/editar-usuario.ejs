@@ -1,0 +1,180 @@
+
+     <%- include('partials/header-simple', { 
+        currentPage: 'editar-usuario', 
+        showBackButton: true 
+    }) %>
+
+    <div class="container">
+        <div class="form-card">
+            <h1 class="form-title">
+                <i class="fas fa-user-edit mr-2"></i>Editar Usuário
+            </h1>
+
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle mr-2"></i><%= error %>
+                </div>
+            <% } %>
+
+            <% if (typeof success !== 'undefined' && success) { %>
+                <div class="success-message">
+                    <i class="fas fa-check-circle mr-2"></i><%= success %>
+                </div>
+            <% } %>
+
+            <form id="formUsuario" action="/atualizar-usuario/<%= usuario.id %>" method="POST">
+                <div class="form-group">
+                    <label class="form-label required">Nome de Usuário</label>
+                    <input type="text" class="form-control" id="nomeUsuario" name="nomeUsuario" 
+                           value="<%= usuario.nomeUsuario || '' %>" 
+                           maxlength="30" required>
+                    <span class="form-help">Mínimo 3 caracteres, máximo 30</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Nova Senha</label>
+                    <input type="password" class="form-control" id="senha" name="senha" 
+                           placeholder="Deixe em branco para manter a senha atual">
+                    <span class="form-help">Mínimo 6 caracteres (se preencher)</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Confirmar Senha</label>
+                    <input type="password" class="form-control" id="confirmarSenha" name="confirmarSenha" 
+                           placeholder="Confirme a nova senha">
+                    <div id="passwordMatch" class="password-match"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">Tipo de Usuário</label>
+                    <select class="form-control" id="role" name="role" required>
+                        <option value="">Selecione o tipo</option>
+                        <option value="USER" <%= (usuario.role === 'USER' || usuario.role === 'ROLE_USER') ? 'selected' : '' %>>Usuário Normal</option>
+                        <option value="ADMIN" <%= (usuario.role === 'ADMIN' || usuario.role === 'ROLE_ADMIN') ? 'selected' : '' %>>Administrador</option>
+                    </select>
+                    <span class="form-help">Usuários ADMIN têm acesso total ao sistema</span>
+                </div>
+
+                <button type="submit" class="btn-submit" id="btnSubmit">
+                    <i class="fas fa-save mr-2"></i>Atualizar Usuário
+                </button>
+            </form>
+        </div>
+    </div>
+
+ <%- include('partials/footer') %>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('formUsuario');
+        const nomeInput = document.getElementById('nomeUsuario');
+        const senhaInput = document.getElementById('senha');
+        const confirmarSenhaInput = document.getElementById('confirmarSenha');
+        const roleSelect = document.getElementById('role');
+        const passwordMatch = document.getElementById('passwordMatch');
+        const btnSubmit = document.getElementById('btnSubmit');
+
+        // Validação em tempo real da senha
+        function validarSenhas() {
+            const senha = senhaInput.value;
+            const confirmarSenha = confirmarSenhaInput.value;
+            
+            // Se ambos vazios, OK
+            if (senha === '' && confirmarSenha === '') {
+                passwordMatch.textContent = '';
+                passwordMatch.className = 'password-match';
+                return true;
+            }
+            
+            // Se só um preenchido
+            if ((senha && !confirmarSenha) || (!senha && confirmarSenha)) {
+                passwordMatch.textContent = 'Preencha ambos os campos de senha';
+                passwordMatch.className = 'password-match match-invalid';
+                return false;
+            }
+            
+            // Se ambos preenchidos
+            if (senha && confirmarSenha) {
+                if (senha === confirmarSenha) {
+                    passwordMatch.textContent = '✓ Senhas coincidem';
+                    passwordMatch.className = 'password-match match-valid';
+                    return true;
+                } else {
+                    passwordMatch.textContent = '✗ Senhas não coincidem';
+                    passwordMatch.className = 'password-match match-invalid';
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        // Event listeners para validação em tempo real
+        senhaInput.addEventListener('input', validarSenhas);
+        confirmarSenhaInput.addEventListener('input', validarSenhas);
+
+        // Validação do formulário no submit
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Limpar mensagens anteriores
+            passwordMatch.textContent = '';
+            
+            // Validar campos
+            const nome = nomeInput.value.trim();
+            const senha = senhaInput.value;
+            const confirmarSenha = confirmarSenhaInput.value;
+            const role = roleSelect.value;
+            
+            let errors = [];
+            
+            // Validação do nome
+            if (!nome) {
+                errors.push('Nome de usuário é obrigatório');
+            } else if (nome.length < 3) {
+                errors.push('Nome deve ter pelo menos 3 caracteres');
+            } else if (nome.length > 30) {
+                errors.push('Nome não pode ter mais de 30 caracteres');
+            }
+            
+            // Validação da senha
+            if (senha || confirmarSenha) {
+                if (!senha || !confirmarSenha) {
+                    errors.push('Preencha ambos os campos de senha');
+                } else if (senha.length < 6) {
+                    errors.push('Senha deve ter no mínimo 6 caracteres');
+                } else if (senha !== confirmarSenha) {
+                    errors.push('As senhas não coincidem');
+                }
+            }
+            
+            // Validação do tipo
+            if (!role) {
+                errors.push('Selecione o tipo de usuário');
+            }
+            
+            // Se houver erros
+            if (errors.length > 0) {
+                alert('Erros encontrados:\n\n' + errors.join('\n'));
+                return;
+            }
+            
+            // Desabilitar botão e mostrar loading
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Atualizando...';
+            
+            // Enviar formulário
+            this.submit();
+        });
+
+        // Validação do nome em tempo real
+        nomeInput.addEventListener('input', function() {
+            const nome = this.value;
+            if (nome.length > 30) {
+                this.value = nome.substring(0, 30);
+            }
+        });
+    });
+    </script>
+</body>
+</html>

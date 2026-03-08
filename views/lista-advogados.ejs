@@ -1,0 +1,127 @@
+<%- include('partials/header-simple', { 
+    currentPage: 'listar-advogados', 
+    showBackButton: true 
+}) %>
+
+<section class="section">
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <h1 class="title">Lista de Advogados</h1>
+                <p class="subtitle">Gestão de advogados do sistema</p>
+            </div>
+            
+            <div class="buttons">
+                <!-- PROTEÇÃO: Só admin cadastra -->
+                <% if (user.role === 'ROLE_ADMIN') { %>
+                    <button class="button is-info" onclick="cadastrarAdvogado()">
+                        <i class="fas fa-user-tie"></i>&nbsp;Novo Advogado
+                    </button>
+                <% } %>
+                <a href="/" class="button is-light">
+                    <i class="fas fa-home"></i>&nbsp;Início
+                </a>
+            </div>
+        </div>
+
+        <div class="box mt-4">
+            <div class="level">
+                <div class="level-left">
+                    <h2 class="title is-5">Advogados do Escritório</h2>
+                    <% if (advogados && advogados.length > 0) { %>
+                        <p class="subtitle is-6 has-text-grey ml-3">
+                            Mostrando <%= advogados.length %> advogados
+                        </p>
+                    <% } %>
+                </div>
+            </div>
+            
+            <div class="field mb-5">
+                <label class="label">Buscar Advogado</label>
+                <div class="control has-icons-left">
+                    <input class="input" type="text" id="inputBusca" placeholder="Busque por nome, OAB, email ou especialidade...">
+                    <span class="icon is-left">
+                        <i class="fas fa-search"></i>
+                    </span>
+                </div>
+            </div>
+
+            <% if (advogados && advogados.length > 0) { %>
+                <div class="table-responsive">
+                    <table class="table is-fullwidth is-striped is-hoverable" id="advogadosTable">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>OAB</th>
+                                <th>Email</th>
+                                <th>Telefone</th>
+                                <th>Especialidade</th>
+                                <!-- PROTEÇÃO: Coluna de ações só aparece para admin -->
+                                <% if (user.role === 'ROLE_ADMIN') { %>
+                                    <th>Ações</th>
+                                <% } %>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for (let i = 0; i < advogados.length; i++) { 
+                                const advogado = advogados[i];
+                            %>
+                            <tr>
+                                <td class="has-text-weight-medium"><%= advogado.nome %></td>
+                                <td><%= advogado.oab %></td>
+                                <td><%= advogado.email %></td>
+                                <td><%= advogado.telefone %></td>
+                                <td><span class="tag is-info is-light"><%= advogado.especialidade %></span></td>
+                                
+                                <!-- PROTEÇÃO: Botões de ação só para admin -->
+                                <% if (user.role === 'ROLE_ADMIN') { %>
+                                <td>
+                                    <div class="actions-cell">
+                                        <a href="/editar-advogado/<%= advogado.id %>" class="btn-icon btn-edit" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <div class="btn-icon btn-delete" title="Excluir" onclick="excluirAdvogado('<%= advogado.id %>')">
+                                            <i class="fas fa-trash"></i>
+                                        </div>
+                                    </div>
+                                </td>
+                                <% } %>
+                            </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div style="text-align: center; padding: 60px 20px;">
+                    <i class="fas fa-user-tie" style="font-size: 64px; color: #ddd; margin-bottom: 20px;"></i>
+                    <h3 class="title is-5">Nenhum advogado cadastrado</h3>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</section>
+
+<%- include('partials/footer') %>
+
+<script>
+    function cadastrarAdvogado(){ window.location.href = '/cadastrar-advogado'; }
+    function excluirAdvogado(advogadoId) {
+        if (!confirm('Tem certeza que deseja excluir este advogado?')) return;
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/excluir-advogado/' + advogadoId;
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const inputBusca = document.getElementById('inputBusca');
+        const linhas = document.querySelectorAll('#advogadosTable tbody tr');
+        inputBusca.addEventListener('keyup', () => {
+            const termo = inputBusca.value.toLowerCase();
+            linhas.forEach(linha => {
+                linha.style.display = linha.textContent.toLowerCase().includes(termo) ? "" : "none";
+            });
+        });
+    });
+</script>

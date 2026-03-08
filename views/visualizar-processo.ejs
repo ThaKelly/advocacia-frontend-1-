@@ -1,0 +1,85 @@
+<%- include('partials/header-simple', { 
+    currentPage: 'visualizar-processo', 
+    showBackButton: false 
+}) %>
+
+<section class="section">
+    <div class="container" style="max-width: 900px;">
+        <!-- BOTÃO VOLTAR -->
+        <div class="mb-5">
+            <a href="/processos" class="button is-light">
+                <i class="fas fa-arrow-left"></i>&nbsp;&nbsp;Voltar para Lista Geral
+            </a>
+        </div>
+
+        <div class="form-card">
+            <div class="level">
+                <div class="level-left">
+                    <h1 class="title is-4">
+                        <i class="fas fa-file-contract mr-2"></i> Ficha Detalhada do Processo
+                    </h1>
+                </div>
+                <div class="level-right">
+                    <span class="status-badge <%= processo.status === 'CONCLUIDO' ? 'status-concluido' : 'status-em-andamento' %>">
+                        <%= processo.status %>
+                    </span>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- TABELA DE DADOS FOCADOS -->
+            <table class="table is-fullwidth is-bordered">
+                <tbody>
+                    <tr>
+                        <th style="width: 30%; background-color: #f8f9fa;">Número do Processo</th>
+                        <td><strong><%= processo.numeroProcesso %></strong></td>
+                    </tr>
+                    <tr>
+                        <th style="background-color: #f8f9fa;">Advogado Responsável</th>
+                        <td><%= processo.advogado?.nome || '—' %></td>
+                    </tr>
+                    <tr>
+                        <th style="background-color: #f8f9fa;">Data de Abertura</th>
+                        <td><%= processo.dataAbertura ? new Date(processo.dataAbertura).toLocaleDateString('pt-BR') : '—' %></td>
+                    </tr>
+                    <tr>
+                        <th style="background-color: #f8f9fa;">Valor da Causa</th>
+                        <td class="has-text-weight-bold">R$ <%= parseFloat(processo.valorCausa || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- SEÇÕES DE TEXTO LONGO -->
+            <div class="mt-5">
+                <h3 class="subtitle is-5" style="border-left: 4px solid #262433; padding-left: 10px;">Descrição</h3>
+                <div class="box is-light" style="background-color: #fdfdfd;">
+                    <%= processo.descricao %>
+                </div>
+            </div>
+
+            <div class="mt-5">
+                <h3 class="subtitle is-5" style="border-left: 4px solid #6A72BB; padding-left: 10px;">Objetivo</h3>
+                <div class="box" style="background-color: #fdfdfd;">
+                    <%= processo.objetivo || 'Nenhum objetivo detalhado.' %>
+                </div>
+            </div>
+
+            <div class="mt-5">
+                <h3 class="subtitle is-5" style="border-left: 4px solid #ff3860; padding-left: 10px;">Relatório</h3>
+                <div class="box" style="background-color: #fff9f9; border: 1px dashed #ddd; white-space: pre-wrap;"><%= processo.relatorio %></div>
+            </div>
+
+            <!-- BOTÕES DE AÇÃO RÁPIDA (Só se for Admin) -->
+            <% if (user.role === 'ROLE_ADMIN') { %>
+                <div class="buttons mt-6">
+                    <a href="/editar-processo/<%= processo.code || processo.id %>" class="button is-info">
+                        <i class="fas fa-edit"></i>&nbsp;Editar Dados
+                    </a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</section>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,126 @@
+<%- include('partials/header-simple', { 
+    currentPage: 'editar-advogado', 
+    showBackButton: true 
+}) %>
+
+<div class="container">
+    <div class="form-card">
+        <h1 class="form-title">
+            <i class="fas fa-user-tie mr-2"></i>Editar Advogado
+        </h1>
+
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle mr-2"></i><%= error %>
+            </div>
+        <% } %>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="success-message">
+                <i class="fas fa-check-circle mr-2"></i><%= success %>
+            </div>
+        <% } %>
+
+        <form id="formAdvogado" action="/atualizar-advogado/<%= advogado.id %>" method="POST">
+
+            <div class="form-group">
+                <label class="form-label required">Nome</label>
+                <input type="text" class="form-control" id="nome" name="nome"
+                       value="<%= advogado.nome || '' %>"
+                       maxlength="100" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label required">OAB</label>
+                <input type="text" class="form-control" id="oab" name="oab"
+                       value="<%= advogado.oab || '' %>"
+                       maxlength="20" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label required">Email</label>
+                <input type="email" class="form-control" id="email" name="email"
+                       value="<%= advogado.email || '' %>"
+                       maxlength="100" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label required">Telefone</label>
+                <input type="text" class="form-control" id="telefone" name="telefone"
+                       value="<%= advogado.telefone || '' %>"
+                       maxlength="20" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label required">Especialidade</label>
+                <input type="text" class="form-control" id="especialidade" name="especialidade"
+                       value="<%= advogado.especialidade || '' %>"
+                       maxlength="80" required>
+            </div>
+
+            <button type="submit" class="btn-submit" id="btnSubmit">
+                <i class="fas fa-save mr-2"></i>Atualizar Advogado
+            </button>
+        </form>
+    </div>
+</div>
+
+<%- include('partials/footer') %>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('formAdvogado');
+    const btnSubmit = document.getElementById('btnSubmit');
+
+    const nomeInput = document.getElementById('nome');
+    const oabInput = document.getElementById('oab');
+    const emailInput = document.getElementById('email');
+    const telefoneInput = document.getElementById('telefone');
+    const especialidadeInput = document.getElementById('especialidade');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        let errors = [];
+
+        if (!nomeInput.value.trim()) errors.push('Nome é obrigatório');
+        if (!oabInput.value.trim()) errors.push('OAB é obrigatória');
+        if (!emailInput.value.trim()) errors.push('Email é obrigatório');
+        if (!telefoneInput.value.trim()) errors.push('Telefone é obrigatório');
+        if (!especialidadeInput.value.trim()) errors.push('Especialidade é obrigatória');
+
+        if (errors.length > 0) {
+            alert('Erros encontrados:\n\n' + errors.join('\n'));
+            return;
+        }
+
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Atualizando...';
+
+        this.submit();
+    });
+
+    // Limites em tempo real
+    nomeInput.addEventListener('input', () => {
+        if (nomeInput.value.length > 100)
+            nomeInput.value = nomeInput.value.substring(0, 100);
+    });
+
+    oabInput.addEventListener('input', () => {
+        if (oabInput.value.length > 20)
+            oabInput.value = oabInput.value.substring(0, 20);
+    });
+
+    telefoneInput.addEventListener('input', () => {
+        if (telefoneInput.value.length > 20)
+            telefoneInput.value = telefoneInput.value.substring(0, 20);
+    });
+
+    especialidadeInput.addEventListener('input', () => {
+        if (especialidadeInput.value.length > 80)
+            especialidadeInput.value = especialidadeInput.value.substring(0, 80);
+    });
+});
+</script>
+</body>
+</html>

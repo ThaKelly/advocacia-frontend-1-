@@ -1,0 +1,173 @@
+
+   <%- include('partials/header-simple', { 
+        currentPage: 'cadastrarUsuario', 
+        showBackButton: true 
+    }) %>
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="main-container">
+
+        <div class="form-card">
+            <h1 class="form-title">
+                <i class="fas fa-user-plus mr-2"></i>Cadastrar Novo Usuário
+            </h1>
+            <div id="successMessage" class="success-message">
+                <i class="fas fa-check-circle mr-2"></i>Usuário cadastrado com sucesso! Redirecionando...
+            </div>
+
+            <div id="errorMessage" class="error-message">
+                <i class="fas fa-exclamation-circle mr-2"></i><span id="errorText">Por favor, preencha todos os campos obrigatórios corretamente.</span>
+            </div>
+
+            <div id="warningMessage" class="warning-message">
+                <i class="fas fa-exclamation-triangle mr-2"></i><span id="warningText">Atenção: Usuários ADMIN têm acesso total ao sistema.</span>
+            </div>
+
+            
+            <form id="formUsuario" action="/cadastrar-usuario" method="POST">
+                <div class="form-group">
+                    <label for="nomeUsuario" class="form-label required">Nome de Usuário</label>
+                    <input type="text" class="form-control" id="nomeUsuario" name="nomeUsuario" 
+                           placeholder="Digite o nome de usuário (login)" required>
+                    <div class="form-help">Entre 3 e 30 caracteres. Este será o login do usuário.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="senha" class="form-label required">Senha</label>
+                    <input type="password" class="form-control" id="senha" name="senha" 
+                           placeholder="Digite uma senha" required>
+                    <div class="form-help">Mínimo de 6 caracteres.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmarSenha" class="form-label required">Confirmar Senha</label>
+                    <input type="password" class="form-control" id="confirmarSenha" name="confirmarSenha" 
+                           placeholder="Digite a senha novamente" required>
+                    <div id="passwordMatch" class="password-match"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="role" class="form-label required">Tipo de Usuário</label>
+                    <select class="form-control" id="role" name="role" required>
+                        <option value="">Selecione o tipo de usuário</option>
+                        <option value="USER">Usuário Normal</option> 
+                        <option value="ADMIN">Administrador</option>
+                    </select>
+                    <div class="form-help">Usuários ADMIN têm permissões totais no sistema.</div>
+                </div>
+                
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-user-plus mr-2"></i>Cadastrar Usuário
+                </button>
+            </form>
+        </div>
+    </div>
+
+   <%- include('partials/footer') %>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('formUsuario');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const warningMessage = document.getElementById('warningMessage');
+        const tipoUsuario = document.getElementById('role');
+        const senhaInput = document.getElementById('senha');
+        const confirmarSenhaInput = document.getElementById('confirmarSenha');
+        const passwordMatch = document.getElementById('passwordMatch');
+
+        // Mostrar warning quando selecionar ADMIN
+        tipoUsuario.addEventListener('change', function() {
+            if (this.value === 'ROLE_ADMIN') {
+                warningMessage.style.display = 'block';
+            } else {
+                warningMessage.style.display = 'none';
+            }
+        });
+
+        // Verificar se as senhas coincidem
+        function verificarSenhas() {
+            const senha = senhaInput.value;
+            const confirmarSenha = confirmarSenhaInput.value;
+            
+            if (confirmarSenha === '') {
+                passwordMatch.textContent = '';
+                passwordMatch.className = 'password-match';
+                return true;
+            }
+            
+            if (senha === confirmarSenha) {
+                passwordMatch.textContent = '✓ Senhas coincidem';
+                passwordMatch.className = 'password-match match-valid';
+                return true;
+            } else {
+                passwordMatch.textContent = '✗ Senhas não coincidem';
+                passwordMatch.className = 'password-match match-invalid';
+                return false;
+            }
+        }
+
+        senhaInput.addEventListener('input', verificarSenhas);
+        confirmarSenhaInput.addEventListener('input', verificarSenhas);
+
+        // Validação do formulário
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Reset mensagens
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+            
+            // Validações básicas
+            const nome = document.getElementById('nomeUsuario').value.trim();
+            const senha = senhaInput.value;
+            const confirmarSenha = confirmarSenhaInput.value;
+            const role = tipoUsuario.value;
+            
+            let errors = [];
+            
+            // Validar nome de usuário (3-30 caracteres)
+            if (!nome) {
+                errors.push('Nome de usuário é obrigatório');
+            } else if (nome.length < 3 || nome.length > 30) {
+                errors.push('Nome de usuário deve ter entre 3 e 30 caracteres');
+            }
+            
+            // Validar senha (mínimo 6 caracteres)
+            if (!senha) {
+                errors.push('Senha é obrigatória');
+            } else if (senha.length < 6) {
+                errors.push('Senha deve ter no mínimo 6 caracteres');
+            }
+            
+            // Validar confirmação de senha
+            if (!confirmarSenha) {
+                errors.push('Confirmação de senha é obrigatória');
+            } else if (senha !== confirmarSenha) {
+                errors.push('As senhas não coincidem');
+            }
+            
+            // Validar role
+            if (!role) {
+                errors.push('Tipo de usuário é obrigatório');
+            }
+            
+            if (errors.length > 0) {
+                document.getElementById('errorText').textContent = errors.join(', ');
+                errorMessage.style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+            
+            // Se todas as validações passarem, enviar o formulário
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+            
+            // Enviar formulário após breve delay para mostrar mensagem
+            setTimeout(() => {
+                this.submit();
+            }, 1500);
+        });
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<%- include('partials/header-simple', { 
+    currentPage: 'cadastrar-advogado', 
+    showBackButton: true 
+}) %>
+
+<div class="main-container">
+    <div class="container">
+        <!-- Botão Voltar -->
+        <a href="/advogados" class="back-button mb-4" style="display: inline-block; margin-bottom: 20px; color: #504E66; text-decoration: none;">
+            <i class="fas fa-arrow-left"></i> Voltar para Lista de Advogados
+        </a>
+
+        <div class="form-card">
+            <h1 class="form-title">
+                <i class="fas fa-user-plus mr-2"></i>Cadastrar Novo Advogado
+            </h1>
+
+            <!-- Mensagens de Feedback -->
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="notification is-danger is-light">
+                    <i class="fas fa-exclamation-circle mr-2"></i><%= error %>
+                </div>
+            <% } %>
+
+            <form id="formAdvogado" action="/cadastrar-advogado" method="POST">
+                
+                <div class="form-group">
+                    <label for="nome" class="form-label required">Nome Completo</label>
+                    <input type="text" class="form-control" id="nome" name="nome" 
+                           placeholder="Ex: Dr. Heitor Silva" maxlength="100" required>
+                </div>
+
+                <div class="form-row" style="display: flex; gap: 20px; margin-bottom: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="oab" class="form-label required">Inscrição OAB</label>
+                        <input type="text" class="form-control" id="oab" name="oab" 
+                               placeholder="Ex: 123456/SP" maxlength="20" required>
+                    </div>
+
+                    <div class="form-group" style="flex: 1;">
+                        <label for="telefone" class="form-label required">Telefone / WhatsApp</label>
+                        <input type="text" class="form-control" id="telefone" name="telefone" 
+                               placeholder="(00) 00000-0000" maxlength="20" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label required">E-mail Profissional</label>
+                    <input type="email" class="form-control" id="email" name="email" 
+                           placeholder="advogado@exemplo.com" maxlength="100" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="especialidade" class="form-label required">Especialidade Principal</label>
+                    <input type="text" class="form-control" id="especialidade" name="especialidade" 
+                           placeholder="Ex: Direito Civil, Penal, Trabalhista..." maxlength="80" required>
+                </div>
+
+                <hr>
+
+                <button type="submit" class="btn-submit" id="btnSubmit" style="width: 100%; padding: 12px; background: #262433; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                    <i class="fas fa-save mr-2"></i>Finalizar Cadastro
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('formAdvogado');
+    const btnSubmit = document.getElementById('btnSubmit');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validações simples
+        const campos = ['nome', 'oab', 'email', 'telefone', 'especialidade'];
+        let erros = [];
+
+        campos.forEach(id => {
+            const valor = document.getElementById(id).value.trim();
+            if (!valor) erros.push(`O campo ${id} é obrigatório.`);
+        });
+
+        if (erros.length > 0) {
+            alert(erros.join('\n'));
+            return;
+        }
+
+        // Feedback visual
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processando...';
+        
+        this.submit();
+    });
+});
+</script>

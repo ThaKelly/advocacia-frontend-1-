@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema Advocacia</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    
+<nav class="navbar">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            <i class="fas fa-balance-scale mr-2"></i>
+            <strong>Sistema Advocacia</strong>
+        </a>
+    </div>
+
+    <div class="navbar-menu">
+        <div class="navbar-start">
+            <a class="navbar-item <%= currentPage === 'home' ? 'is-active' : '' %>" href="/">
+                <i class="fas fa-home"></i>&nbsp;Dashboard
+            </a>
+
+            <!--Link de Advogados -->
+            <a class="navbar-item <%= currentPage === 'advogados' ? 'is-active' : '' %>" href="/advogados">
+                <i class="fas fa-user-tie"></i>&nbsp;Advogados
+            </a>
+            
+            <a class="navbar-item <%= currentPage === 'processos' ? 'is-active' : '' %>" href="/processos">
+                <i class="fas fa-folder-open"></i>&nbsp;Processos
+            </a>
+            
+            <!-- PROTEÇÃO: Só Admin vê o menu de usuários -->
+            <% if (user && user.role === 'ROLE_ADMIN') { %>
+                <a class="navbar-item <%= currentPage === 'usuarios' ? 'is-active' : '' %>" href="/usuarios">
+                    <i class="fas fa-users"></i>&nbsp;Usuários
+                </a>
+            <% } %>
+        </div>
+
+        <div class="navbar-end">
+            <div class="navbar-item">
+                <div class="buttons">
+                    <!-- EXIBE NOME DO USUÁRIO -->
+                    <span class="has-text-white mr-4">
+                        <i class="fas fa-user-circle"></i>&nbsp;<%= user.nome %>
+                    </span>
+
+                    <% if (showBackButton) { %>
+                        <a class="button is-light" onclick="history.back()">
+                            <i class="fas fa-arrow-left"></i>&nbsp;Voltar
+                        </a>
+                    <% } %>
+
+                    <!-- BOTÃO DE LOGOUT -->
+                    <a href="/logout" class="button is-danger is-outlined" style="color: #ff3860; color: white !important; border:0px">
+                        <i class="fas fa-sign-out-alt"></i>&nbsp;Sair
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<style>
+.navbar {
+    background: linear-gradient(90deg, #262433, #504E66);
+    padding: 5px 20px;
+}
+
+.navbar .navbar-item,
+.navbar .navbar-brand strong {
+    color: white !important;
+}
+
+.navbar .button.is-light {
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+    border: none;
+}
+
+.navbar-item:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: #6A72BB !important; 
+    border-radius: 4px;
+}
+
+.navbar .navbar-item.is-active {
+    background-color: rgba(255,255,255,0.15) !important;
+    border-bottom: 2px solid #6A72BB;
+    border-radius: 0px;
+}
+
+.navbar-end .has-text-white {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+</style>

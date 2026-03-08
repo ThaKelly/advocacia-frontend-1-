@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Advocacia - Login</title>
+   
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color:#262433;
+            --secondary-color: #504E66;
+        }
+        
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .login-container {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            background-color: white;
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .login-header {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .login-logo {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .login-body {
+            padding: 30px;
+        }
+        
+        .login-button {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            padding: 12px;
+            margin-top: 10px;
+        }
+        
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .login-footer {
+            padding: 20px;
+            text-align: center;
+            background-color: #f8f9fa;
+            border-top: 1px solid #eee;
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Cabeçalho -->
+            <div class="login-header">
+                <div class="login-logo">
+                    <i class="fas fa-balance-scale"></i>
+                </div>
+                <h1 class="title is-3 has-text-white">Sistema Advocacia</h1>
+                <p class="subtitle is-6 has-text-light">Área restrita para usuários autorizados</p>
+            </div>
+            
+            <!-- Corpo do formulário -->
+            <div class="login-body">
+                
+                <!-- MENSAGEM DE ERRO (Aparece se o login falhar) -->
+                <% if (typeof erro !== 'undefined' && erro) { %>
+                    <div class="notification is-danger is-light">
+                        <i class="fas fa-exclamation-circle"></i> <%= erro %>
+                    </div>
+                <% } %>
+                
+                <!-- FORMULÁRIO CORRIGIDO -->
+                <form id="loginForm" method="POST" action="/login">
+                    <!-- Campo de usuário -->
+                    <div class="field">
+                        <label class="label">Usuário</label>
+                        <div class="control has-icons-left">
+                            <input class="input" type="text" name="username" placeholder="Digite seu usuário" required>
+                            <span class="icon is-small is-left">
+                                <i class="fas fa-user"></i>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Campo de senha -->
+                    <div class="field">
+                        <label class="label">Senha</label>
+                        <div class="control has-icons-left">
+                            <input class="input" type="password" name="password" placeholder="Digite sua senha" required>
+                            <span class="icon is-small is-left">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Botão de login -->
+                    <div class="field">
+                        <div class="control">
+                            <button type="submit" class="button is-fullwidth login-button">
+                                <span class="icon">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                </span>
+                                <span>Entrar no Sistema</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="login-footer">
+                <p>&copy; 2026 Sistema de Advocacia.</p>
+                <p class="is-size-7 mt-2">Desenvolvido por Heitor e Thamires</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

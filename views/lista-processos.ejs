@@ -1,0 +1,136 @@
+<%- include('partials/header-simple', { 
+    currentPage: 'listar-processos', 
+    showBackButton: true 
+}) %>
+
+<section class="section">
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <h1 class="title">Lista de Processos</h1>
+                <p class="subtitle">Visualização completa de todos os processos</p>
+            </div>
+            
+            <div class="buttons">
+                <!-- PROTEÇÃO: Só admin cria processo -->
+                <% if (user.role === 'ROLE_ADMIN') { %>
+                    <button class="button is-info" onclick="cadastrarProcesso()">
+                        <i class="fas fa-plus"></i>&nbsp;Novo Processo
+                    </button>
+                <% } %>
+                <a href="/" class="button is-light">
+                    <i class="fas fa-home"></i>&nbsp;Início
+                </a>
+            </div>
+        </div>
+
+        <!-- ESTATÍSTICAS -->
+        <% if (processos && processos.length > 0) { 
+            const total = processos.length;
+            const emAndamento = processos.filter(p => p.status === 'EM_ANDAMENTO').length;
+            const concluidos = processos.filter(p => p.status === 'CONCLUIDO').length;
+            const valorTotal = processos.reduce((sum, p) => sum + (parseFloat(p.valorCausa) || 0), 0);
+        %>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value"><%= total %></div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value"><%= emAndamento %></div>
+                <div class="stat-label">Em Andamento</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value"><%= concluidos %></div>
+                <div class="stat-label">Concluídos</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">R$ <%= valorTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></div>
+                <div class="stat-label">Valor Total</div>
+            </div>
+        </div>
+        <% } %>
+
+        <div class="box mt-4">
+            <div class="field mb-5">
+                <label class="label">Filtrar Processos</label>
+                <div class="control has-icons-left">
+                    <input class="input" type="text" id="inputBuscaProcesso" placeholder="Busque por nº, advogado, status...">
+                    <span class="icon is-left"><i class="fas fa-search"></i></span>
+                </div>
+            </div>
+            
+            <% if (processos && processos.length > 0) { %>
+                <div class="table-responsive">
+                    <table class="table is-fullwidth is-striped is-hoverable" id="processosTable">
+                        <thead>
+                            <tr>
+                                <th>Nº Processo</th>
+                                <th>Advogado</th>
+                                <th>Descrição</th>
+                                <th>Data Abertura</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                                <!-- PROTEÇÃO: Coluna de ações -->
+                                    <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for (let i = 0; i < processos.length; i++) { 
+                                const processo = processos[i];
+                                let statusClass = processo.status === 'CONCLUIDO' ? 'status-concluido' : (processo.status === 'ARQUIVADO' ? 'status-arquivado' : 'status-em-andamento');
+                            %>
+                            <tr>
+                                <td><strong><%= processo.numeroProcesso || processo.code %></strong></td>
+                                <td><%= processo.advogado?.nome || '—' %></td>
+                                <td><%= processo.descricao %></td>
+                                <td><%= processo.dataAbertura ? new Date(processo.dataAbertura).toLocaleDateString('pt-BR') : '—' %></td>
+                                <td>R$ <%= parseFloat(processo.valorCausa || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2}) %></td>
+                                <td><span class="status-badge <%= statusClass %>"><%= processo.status %></span></td>
+                                
+                                <td>
+                                    <div class="actions-cell" style="display: flex; gap: 10px;">
+                                        <!--Botão de informações do processo(público)-->
+                                        <a href="/visualizar-processo/<%= processo.code || processo.id %>" class="btn-icon btn-view" title="Ver Detalhes" style="background-color: #f0f0f0; color: #262433;">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
+
+
+                                        <!-- PROTEÇÃO: Botões de ação -->
+                                        <% if (user.role === 'ROLE_ADMIN') { %>                                        
+                                        <a href="/editar-processo/<%= processo.code || processo.id %>" class="btn-icon btn-edit"><i class="fas fa-edit"></i></a>
+                                        <div class="btn-icon btn-delete" style="cursor:pointer; color: red;" onclick="excluirProcesso('<%= processo.code || processo.id %>')"><i class="fas fa-trash"></i></div>
+                                    </div>
+                                </td>
+                                <% } %>
+                            </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</section>
+
+<%- include('partials/footer') %>
+
+<script>
+    function cadastrarProcesso(){ window.location.href = '/cadastrar-processo'; }
+    function excluirProcesso(id) {
+        if (!confirm('Excluir este processo?')) return;
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/excluir-processo/' + id;
+        document.body.appendChild(form);
+        form.submit();
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        const input = document.getElementById('inputBuscaProcesso');
+        const linhas = document.querySelectorAll('#processosTable tbody tr');
+        input.addEventListener('keyup', () => {
+            const termo = input.value.toLowerCase();
+            linhas.forEach(l => l.style.display = l.textContent.toLowerCase().includes(termo) ? "" : "none");
+        });
+    });
+</script>
